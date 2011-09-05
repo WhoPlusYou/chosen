@@ -262,8 +262,10 @@ class Chosen
       if @result_single_selected
         this.result_do_highlight( @result_single_selected )
 
+    offset = @container.offset()
     dd_top = if @is_multiple then @container.height() else (@container.height() - 1)
-    @dropdown.css {"top":  dd_top + "px", "left":0}
+    @dropdown.css {"top": (offset.top+dd_top) + "px", "left": offset.left + "px", "display": "block"}
+
     @results_showing = true
 
     @search_field.focus()

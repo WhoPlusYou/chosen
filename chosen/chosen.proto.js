@@ -292,17 +292,19 @@
       }
     };
     Chosen.prototype.results_show = function() {
-      var dd_top;
+      var dd_top, offset;
       if (!this.is_multiple) {
         this.selected_item.addClassName('chzn-single-with-drop');
         if (this.result_single_selected) {
           this.result_do_highlight(this.result_single_selected);
         }
       }
+      offset = this.container.positionedOffset();
       dd_top = this.is_multiple ? this.container.getHeight() : this.container.getHeight() - 1;
       this.dropdown.setStyle({
-        "top": dd_top + "px",
-        "left": 0
+        "top": (offset.top + dd_top) + "px",
+        "left": offset.left + "px",
+        "display": "block"
       });
       this.results_showing = true;
       this.search_field.focus();
