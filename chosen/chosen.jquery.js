@@ -308,19 +308,21 @@
       }
     };
     Chosen.prototype.results_show = function() {
-      var dd_top, offset;
+      var dd_top, offset, scroll_x, scroll_y;
       if (!this.is_multiple) {
         this.selected_item.addClass("chzn-single-with-drop");
         if (this.result_single_selected) {
           this.result_do_highlight(this.result_single_selected);
         }
       }
+      scroll_y = $(window).scrollTop();
+      scroll_x = $(window).scrollLeft();
       offset = this.container.offset();
       dd_top = this.is_multiple ? this.container.height() : this.container.height() - 1;
       this.dropdown.css({
-        "top": (offset.top + dd_top) + "px",
-        "left": offset.left + "px",
-        "display": "block"
+        top: (offset.top + dd_top - scroll_y) + "px",
+        left: (offset.left - scroll_x) + "px",
+        display: "block"
       });
       this.results_showing = true;
       this.search_field.focus();

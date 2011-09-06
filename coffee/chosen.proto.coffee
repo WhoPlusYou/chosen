@@ -253,9 +253,11 @@ class Chosen
       if @result_single_selected
         this.result_do_highlight( @result_single_selected )
 
+    scroll = window.cumulativeScrollOffset()
     offset = @container.positionedOffset()
     dd_top = if @is_multiple then @container.getHeight() else (@container.getHeight() - 1)
-    @dropdown.setStyle {"top":  (offset.top+dd_top) + "px", "left": offset.left + "px", "display": "block"}
+    @dropdown.setStyle {top:  (offset.top+dd_top-scroll.top) + "px", left: (offset.left-scroll.left) + "px", display: "block"}
+
     @results_showing = true
 
     @search_field.focus()

@@ -262,9 +262,11 @@ class Chosen
       if @result_single_selected
         this.result_do_highlight( @result_single_selected )
 
+    scroll_y = $(window).scrollTop()
+    scroll_x = $(window).scrollLeft()
     offset = @container.offset()
     dd_top = if @is_multiple then @container.height() else (@container.height() - 1)
-    @dropdown.css {"top": (offset.top+dd_top) + "px", "left": offset.left + "px", "display": "block"}
+    @dropdown.css {top: (offset.top+dd_top-scroll_y) + "px", left: (offset.left-scroll_x) + "px", display: "block"}
 
     @results_showing = true
 
