@@ -89,6 +89,12 @@ class Chosen extends AbstractChosen
     @search_field.keydown (evt) => this.keydown_checker(evt); return
     @search_field.focus (evt) => this.input_focus(evt); return
 
+    # fixed position dropdown doesn't move when window is scrolled,
+    # so treat a scroll as a lost focus and hide the dropdown
+    $(window).scroll (evt) => this.input_blur(evt); return
+    # it also doesn't move if a dialog is scrolled, so hide it then too
+    @container.closest(".ui-dialog-content").bind "dialogdragstart", (evt) => this.input_blur(evt); return
+
     if @is_multiple
       @search_choices.click (evt) => this.choices_click(evt); return
     else
@@ -236,6 +242,13 @@ class Chosen extends AbstractChosen
 
     @container.addClass "chzn-with-drop"
     @form_field_jq.trigger("liszt:showing_dropdown", {chosen: this})
+
+    # dropdown has fixed position, so make sure it lines up with the main container
+    scroll_x = $(window).scrollLeft()
+    scroll_y = $(window).scrollTop()
+    offset = @container.offset()
+    dd_top = if @is_multiple then @container.height() else (@container.height() - 1)
+    @dropdown.css {"top": (offset.top+dd_top-scroll_y)+"px", "left": (offset.left-scroll_x)+"px", "width": @container.width()+"px"}
 
     @results_showing = true
 
