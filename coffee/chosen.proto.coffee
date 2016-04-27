@@ -153,7 +153,7 @@ class @Chosen extends AbstractChosen
         this.activate_field()
 
   container_mouseup: (evt) ->
-    this.results_reset(evt) if evt.target.nodeName is "ABBR" and not @is_disabled
+    this.results_reset(evt) if evt.target.nodeName is "BUTTON" and not @is_disabled
 
   search_results_mousewheel: (evt) ->
     delta = evt.deltaY or -evt.wheelDelta or evt.detail
@@ -340,7 +340,7 @@ class @Chosen extends AbstractChosen
 
   results_reset_cleanup: ->
     @current_selectedIndex = @form_field.selectedIndex
-    deselect_trigger = @selected_item.down("abbr")
+    deselect_trigger = @selected_item.down("button")
     deselect_trigger.remove() if(deselect_trigger)
 
   result_select: (evt) ->
@@ -409,7 +409,7 @@ class @Chosen extends AbstractChosen
 
   single_deselect_control_build: ->
     return unless @allow_single_deselect
-    @selected_item.down("span").insert { after: "<abbr class=\"search-choice-close\"></abbr>" } unless @selected_item.down("abbr")
+    @selected_item.down("span").insert { after: "<button class=\"search-choice-close\">X</button>" } unless @selected_item.down("button")
     @selected_item.addClassName("chosen-single-with-deselect")
 
   get_search_text: ->
