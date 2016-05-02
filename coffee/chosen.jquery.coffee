@@ -419,6 +419,7 @@ class Chosen extends AbstractChosen
 
   single_deselect_control_build: ->
     return unless @allow_single_deselect
+    @selected_item.find("span").first().after "<button class=\"search-choice-close\">X</button>" unless @selected_item.find("button").length
     @selected_item.addClass("chosen-single-with-deselect")
 
   get_search_text: ->
