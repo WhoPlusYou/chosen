@@ -55,9 +55,11 @@ class @Chosen extends AbstractChosen
   register_observers: ->
     @container.observe "touchstart", (evt) => this.container_mousedown(evt); evt.preventDefault()
     @container.observe "touchend", (evt) => this.container_mouseup(evt); evt.preventDefault()
+    @container.observe "touchend", (evt) => this.container_keydown(evt); evt.preventDefault()
 
     @container.observe "mousedown", (evt) => this.container_mousedown(evt)
     @container.observe "mouseup", (evt) => this.container_mouseup(evt)
+    @container.observe "mouseup", (evt) => this.container_keydown(evt)
     @container.observe "mouseenter", (evt) => this.mouse_enter(evt)
     @container.observe "mouseleave", (evt) => this.mouse_leave(evt)
 
@@ -411,6 +413,7 @@ class @Chosen extends AbstractChosen
     return unless @allow_single_deselect
     @selected_item.down("span").insert { after: "<button class=\"search-choice-close\">X</button>" } unless @selected_item.down("button")
     @selected_item.addClassName("chosen-single-with-deselect")
+    @selected_item.down("button").observe "keydown", (evt) => this.keydown_checker(evt)
 
   get_search_text: ->
     @search_field.value.strip().escapeHTML()
@@ -473,6 +476,7 @@ class @Chosen extends AbstractChosen
     @pending_backstroke = null
 
   keydown_checker: (evt) ->
+    console.log(evt);
     stroke = evt.which ? evt.keyCode
     this.search_field_scale()
 

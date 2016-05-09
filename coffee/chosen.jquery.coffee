@@ -419,7 +419,9 @@ class Chosen extends AbstractChosen
 
   single_deselect_control_build: ->
     return unless @allow_single_deselect
-    @selected_item.find("span").first().after "<button class=\"search-choice-close\">X</button>" unless @selected_item.find("button").length
+    if not @selected_item.find("button").length
+      @selected_item.find("span").first().after "<button aria-label=\"Deselect " + this.selected_item.find("span").text().replace("Select ", "") + "\" class=\"search-choice-close\">X</button>"
+      @selected_item.find(".search-choice-close").bind 'keydown.chosen', (evt) => _this.keydown_checker(evt);
     @selected_item.addClass("chosen-single-with-deselect")
 
   get_search_text: ->
@@ -492,6 +494,7 @@ class Chosen extends AbstractChosen
         @mouse_on_container = false
         break
       when 13
+        this.results_reset(evt) if evt.target.nodeName is "BUTTON" and not @is_disabled
         evt.preventDefault() if this.results_showing
         break
       when 32
