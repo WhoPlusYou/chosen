@@ -42,9 +42,11 @@ class Chosen extends AbstractChosen
     @container = ($ "<div />", container_props)
 
     if @is_multiple
-      @container.html '<ul class="chosen-choices"><li class="search-field"><input type="text" value="' + @default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chosen-drop"><ul class="chosen-results"></ul></div>'
+      @container.html '<ul class="chosen-choices"><li class="search-field"><input type="text" value="' + @default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chosen-drop"><ul id="' + container_props.id + '_results" role="listbox" class="chosen-results"></ul></div>'
+      @container.attr("aria-multiselectable", "true")
     else
-      @container.html '<a class="chosen-single chosen-default"><span>' + @default_text + '</span><div><b></b></div></a><div class="chosen-drop"><div class="chosen-search"><input type="text" autocomplete="off" /></div><ul class="chosen-results"></ul></div>'
+      @container.html '<a class="chosen-single chosen-default"><span>' + @default_text + '</span><div><b></b></div></a><div class="chosen-drop"><div class="chosen-search"><input type="text" autocomplete="off" /></div><ul id="' + container_props.id + '_results" role="listbox" class="chosen-results"></ul></div>'
+      @container.attr("aria-multiselectable", "false")
 
     @form_field_jq.hide().after @container
     @dropdown = @container.find('div.chosen-drop').first()
@@ -299,7 +301,11 @@ class Chosen extends AbstractChosen
       choice.addClass 'search-choice-disabled'
     else
       close_link = $('<a />', { class: 'search-choice-close', 'data-option-array-index': item.array_index })
+      close_link.attr('tabIndex', '0')
+      close_link.attr('href', '#')
+      close_link.attr('aria-label', 'Remove ' + this.choice_label(item))
       close_link.bind 'click.chosen', (evt) => this.choice_destroy_link_click(evt)
+      close_link.bind 'keydown.chosen', (evt) => this.keydown_checker(evt)
       choice.append close_link
 
     @search_container.before  choice
@@ -320,6 +326,7 @@ class Chosen extends AbstractChosen
       this.search_field_scale()
 
   results_reset: ->
+    console.log("someone wants to reset results")
     this.reset_single_select_options()
     @form_field.options[0].selected = true
     this.single_set_selected_text()
@@ -327,8 +334,10 @@ class Chosen extends AbstractChosen
     this.results_reset_cleanup()
     @form_field_jq.trigger "change"
     this.results_hide() if @active_field
+    console.log('results have finished reseting')
 
   results_reset_cleanup: ->
+    console.log('someone is trying to clean up the results')
     @current_selectedIndex = @form_field.selectedIndex
     @selected_item.find("abbr").remove()
 
@@ -371,13 +380,20 @@ class Chosen extends AbstractChosen
       this.search_field_scale()
 
   single_set_selected_text: (text=@default_text) ->
+    console.log('someone is trying to set single selected text')
     if text is @default_text
       @selected_item.addClass("chosen-default")
     else
       this.single_deselect_control_build()
+      this.single_set_aria_text(text)
       @selected_item.removeClass("chosen-default")
 
     @selected_item.find("span").html(text)
+
+  single_set_aria_text: (item_text) -> 
+    return unless @allow_single_deselect
+    if @selected_item.find("abbr").length
+      @selected_item.find("abbr").attr('aria-label', 'Remove ' + item_text)
 
   result_deselect: (pos) ->
     result_data = @results_data[pos]
@@ -400,8 +416,11 @@ class Chosen extends AbstractChosen
 
   single_deselect_control_build: ->
     return unless @allow_single_deselect
-    @selected_item.find("span").first().after "<abbr class=\"search-choice-close\"></abbr>" unless @selected_item.find("abbr").length
-    @selected_item.addClass("chosen-single-with-deselect")
+    if not @selected_item.find("abbr").length
+      @selected_item.find("span").first().after "<abbr class=\"search-choice-close\"></abbr>"
+      @selected_item.find("abbr").attr('tabindex', '0')
+      @selected_item.find("abbr").bind 'keydown.chosen', (evt) => this.keydown_checker(evt)
+      @selected_item.addClass("chosen-single-with-deselect")
 
   get_search_text: ->
     $('<div/>').text($.trim(@search_field.val())).html()
@@ -473,6 +492,8 @@ class Chosen extends AbstractChosen
         @mouse_on_container = false
         break
       when 13
+        console.log('someone presed enter')
+        this.results_reset(evt) if not @is_disabled and (evt.target.nodeName == "ABBR")
         evt.preventDefault() if this.results_showing
         break
       when 32
